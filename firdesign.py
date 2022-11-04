@@ -14,8 +14,8 @@ def high_pass_design(sampling_rate, cutoff_frequency, frequency_resolution=1):
     x = np.real(x)
     # Mirror h(n)
     h = np.zeros(M)
-    h[0:int(M/2)] = x[int(M/2):M]
-    h[int(M/2):M] = x[0:int(M/2)]
+    h[0:int(M / 2)] = x[int(M / 2):M]
+    h[int(M / 2):M] = x[0:int(M / 2)]
     # Window h(n) using a Hamming window
     h = h * np.hamming(M)
 
@@ -36,8 +36,8 @@ def band_stop_design(sampling_rate, cutoff_frequency, frequency_resolution=1):
     x = np.real(x)
     # Mirror h(n)
     h = np.zeros(M)
-    h[0:int(M/2)] = x[int(M/2):M]
-    h[int(M/2):M] = x[0:int(M/2)]
+    h[0:int(M / 2)] = x[int(M / 2):M]
+    h[int(M / 2):M] = x[0:int(M / 2)]
     # Window h(n) using a Hamming window
     h = h * np.hamming(M)
 

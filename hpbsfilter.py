@@ -1,4 +1,5 @@
 import numpy as np
+
 import firdesign
 from firfilter import FirFilter
 
@@ -24,3 +25,5 @@ if __name__ == '__main__':
     high_pass_output = np.zeros(n)
     for i in range(n):
         high_pass_output[i] = high_pass_filter.do_filter(band_stop_output[i])
+
+    # TODO Plot & Compare the results

@@ -9,7 +9,7 @@ class FirFilter:
         self.buffer = np.zeros(self.M)
         self.offset = self.M - 1
 
-    def dofilter(self, input):
+    def do_filter(self, input):
         self.buffer[self.offset] = input
         # Move the offset
         self.offset -= 1
@@ -18,3 +18,11 @@ class FirFilter:
         for i in range(self.M):
             output += self.h[i] * self.buffer[(i + self.offset) % self.M]
         return output
+
+    def do_filter_adaptive(self, signal, noise, learning_rate):
+        # Calculate thr error
+        canceller = self.do_filter(noise)
+        error = signal - canceller
+        # Update the h(n)
+        for i in range(self.M):
+            self.h[i] += error * learning_rate * self.buffer[i]

@@ -2,14 +2,14 @@ import numpy as np
 
 
 class FirFilter:
-    def __int__(self, _h):
+    def __init__(self, _h):
         self.h = _h
         self.M = len(_h)
         # Ring buffer
         self.buffer = np.zeros(self.M)
         self.offset = self.M - 1
 
-    def filter(self, input):
+    def dofilter(self, input):
         self.buffer[self.offset] = input
         # Move the offset
         self.offset -= 1

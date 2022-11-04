@@ -5,16 +5,16 @@ from firfilter import FirFilter
 if __name__ == '__main__':
     file_path = 'ECG_1000Hz.dat'
     sample_rate = 1000
-    w_1 = 49
-    w_2 = 51
-    w_c = 2
+    band_stop_w_1 = 49
+    band_stop_w_2 = 51
+    high_pass_w_c = 2
     data = np.loadtxt(file_path)
     n = len(data)
     # Create bands-top filter
-    band_stop_h = firdesign.band_stop_design(sample_rate, [w_1, w_2])
+    band_stop_h = firdesign.band_stop_design(sample_rate, [band_stop_w_1, band_stop_w_2])
     band_stop_filter = FirFilter(band_stop_h)
     # Create high-pass filter
-    high_pass_h = firdesign.high_pass_design(sample_rate, w_c)
+    high_pass_h = firdesign.high_pass_design(sample_rate, high_pass_w_c)
     high_pass_filter = FirFilter(high_pass_h)
     # Remove the 50Hz interference by the band-stop filter
     band_stop_output = np.zeros(n)

@@ -1,6 +1,6 @@
 class FirFilter:
     def __int__(self, _coefficients):
-        pass
+        self.coefficients = _coefficients
 
     def filter(self, v):
         pass

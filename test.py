@@ -1,8 +1,8 @@
 import numpy as np
+import firdesign
+import matplotlib.pyplot as plt
 
 
-a = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-tmp = np.copy(a[0:int(len(a) / 2)])
-a[0:int(len(a) / 2)] = a[int(len(a) / 2):len(a)]
-a[int(len(a) / 2):len(a)] = tmp
-print(a)
+h = firdesign.band_stop_design(500, [45, 55])
+plt.plot(h)
+plt.show()

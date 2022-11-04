@@ -13,6 +13,8 @@ class FirFilter:
         self.buffer[self.offset] = input
         # Move the offset
         self.offset -= 1
+        if self.offset < 0:
+            self.offset = self.M - 1
         # Calculate the output
         output = 0
         for i in range(self.M):

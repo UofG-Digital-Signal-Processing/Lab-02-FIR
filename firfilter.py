@@ -28,3 +28,4 @@ class FirFilter:
         # Update the h(n)
         for i in range(self.M):
             self.h[i] += error * learning_rate * self.buffer[i]
+        return error

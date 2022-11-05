@@ -65,15 +65,8 @@ if __name__ == '__main__':
     freq_mag_abs_plt = 2 * freq_mag_abs[:int(total_samples / 2) + 1]
     freq_mag_dB = 20 * np.log10(freq_mag_abs_plt)
 
-
-    plt.subplot(2, 2, 4)
-    plt.title("After eliminating 50Hz")
-    plt.xlabel("frequency")
-    plt.ylabel("dB")
-    plt.plot(freq_domain_plt, freq_mag_abs_plt)
-
-    t = np.arange(0, 30000)
-    t = t / 250
+    t = np.arange(0, n)
+    t = t / sample_rate
     plt.subplot(2, 2, 1)
     plt.title("Original signal")
     plt.plot(t, data)
@@ -85,6 +78,13 @@ if __name__ == '__main__':
     plt.subplot(2, 2, 3)
     plt.title("After eliminating 50Hz")
     plt.plot(t, band_stop_output)
+
+    plt.subplot(2, 2, 4)
+    plt.title("After eliminating 50Hz")
+    plt.xlabel("frequency")
+    plt.ylabel("dB")
+    plt.plot(freq_domain_plt, freq_mag_abs_plt)
+
     plt.tight_layout()
     plt.show()
 

@@ -7,8 +7,8 @@ def high_pass_design(sampling_rate, cutoff_frequency, frequency_resolution=1):
     w_c = int(cutoff_frequency / fs * M)
     # Define the ideal frequency response
     X = np.ones(M)
-    X[0:w_c] = 0
-    X[M - w_c:M - 1] = 0
+    X[0:w_c + 1] = 0
+    X[M - w_c:M + 1] = 0
     # Compute h(n) using the inverse FFT
     x = np.fft.ifft(X)
     x = np.real(x)

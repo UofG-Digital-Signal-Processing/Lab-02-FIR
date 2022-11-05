@@ -65,24 +65,26 @@ if __name__ == '__main__':
     freq_mag_abs_plt = 2 * freq_mag_abs[:int(total_samples / 2) + 1]
     freq_mag_dB = 20 * np.log10(freq_mag_abs_plt)
 
-    plt.figure(4)
-    plt.title("Spectrum of output after eliminating 50Hz")
+
+    plt.subplot(2, 2, 4)
+    plt.title("After eliminating 50Hz")
     plt.xlabel("frequency")
     plt.ylabel("dB")
     plt.plot(freq_domain_plt, freq_mag_abs_plt)
 
     t = np.arange(0, 30000)
     t = t / 250
-    plt.figure(1)
-    plt.title("original signal")
+    plt.subplot(2, 2, 1)
+    plt.title("Original signal")
     plt.plot(t, data)
 
-    plt.figure(2)
-    plt.title("output after eliminating baseline wander")
+    plt.subplot(2, 2, 2)
+    plt.title("After eliminating baseline wander")
     plt.plot(t, high_pass_output)
 
-    plt.figure(3)
-    plt.title("output after eliminating 50Hz")
+    plt.subplot(2, 2, 3)
+    plt.title("After eliminating 50Hz")
     plt.plot(t, band_stop_output)
+    plt.tight_layout()
     plt.show()
 

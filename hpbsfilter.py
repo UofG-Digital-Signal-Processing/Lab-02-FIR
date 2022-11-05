@@ -31,12 +31,58 @@ if __name__ == '__main__':
 
     # TODO Plot & Compare the results
 
-    x1 = range(0,n)
-    plt.figure(1)
-    plt.subplot(2, 1, 1)
-    plt.xlabel("time")
-    plt.ylabel("Amplitude")
-    plt.title("original_ECG")
-    plt.plot(x1, data)
+    # x1 = range(0,n)
+    # plt.figure(1)
+    # plt.subplot(2, 1, 1)
+    # plt.xlabel("time")
+    # plt.ylabel("Amplitude")
+    # plt.title("original_ECG")
+    # plt.plot(x1, data)
+    #
+    # plt.show()
 
+    amplitude = np.array(band_stop_output)
+
+    # calculating the total number of samples
+    total_samples = np.size(band_stop_output)
+
+    # calculating the time step between each sample
+    time_step = 1 / sample_rate
+
+    # calculating the time domain for the signal
+    time_domain = np.linspace(0, (total_samples - 1) * time_step, total_samples)
+
+    # calculating the frequency step size for the signal
+    freq_step = sample_rate / total_samples
+
+    # calculating the frequency domain for the signal
+    freq_domain = np.linspace(0, (total_samples - 1) * freq_step, total_samples)
+    freq_domain_plt = freq_domain[:int(total_samples / 2) + 1]
+
+    # calculating the frequency response of the signal
+    freq_mag = np.fft.fft(band_stop_output)
+    freq_mag_abs = np.abs(freq_mag) / total_samples
+    freq_mag_abs_plt = 2 * freq_mag_abs[:int(total_samples / 2) + 1]
+    freq_mag_dB = 20 * np.log10(freq_mag_abs_plt)
+
+    plt.figure(4)
+    plt.title("Spectrum of output after eliminating 50Hz")
+    plt.xlabel("frequency")
+    plt.ylabel("dB")
+    plt.plot(freq_domain_plt, freq_mag_abs_plt)
+
+    t = np.arange(0, 30000)
+    t = t / 250
+    plt.figure(1)
+    plt.title("original signal")
+    plt.plot(t, data)
+
+    plt.figure(2)
+    plt.title("output after eliminating baseline wander")
+    plt.plot(t, high_pass_output)
+
+    plt.figure(3)
+    plt.title("output after eliminating 50Hz")
+    plt.plot(t, band_stop_output)
     plt.show()
+

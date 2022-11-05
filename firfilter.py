@@ -21,6 +21,19 @@ class FirFilter:
             output += self.h[i] * self.buffer[(i + self.offset) % self.M]
         return output
 
+    def dofilter(self, v):
+        output = 0
+        for j in range(self.M - 1):
+            self.buffer[self.M - 1 - j] = self.buffer[
+                self.M - 2 - j]  # as time goes by move the past value x(n) to x(n-1)
+        self.buffer[0] = v  # assign the v to buffer[0] as the current input value
+
+        for i in range(self.M):
+            output += self.h[i] * self.buffer[i]
+
+        # return np.inner(self.buffer, self.coefficients)
+        return output
+
     def do_filter_adaptive(self, signal, noise, learning_rate):
         # Calculate thr error
         canceller = self.do_filter(noise)

@@ -2,6 +2,9 @@ import numpy as np
 
 import firdesign
 from firfilter import FirFilter
+import matplotlib
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
     file_path = 'ECG_1000Hz.dat'
@@ -27,3 +30,13 @@ if __name__ == '__main__':
         high_pass_output[i] = high_pass_filter.do_filter(band_stop_output[i])
 
     # TODO Plot & Compare the results
+
+    x1 = range(0,n)
+    plt.figure(1)
+    plt.subplot(2, 1, 1)
+    plt.xlabel("time")
+    plt.ylabel("Amplitude")
+    plt.title("original_ECG")
+    plt.plot(x1, data)
+
+    plt.show()

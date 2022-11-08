@@ -9,7 +9,7 @@ class FirFilter:
         self.buffer = np.zeros(self.M)
         self.offset = self.M - 1
 
-    def do_filter(self, input):
+    def _do_filter(self, input):
         self.buffer[self.offset] = input
         # Move the offset
         self.offset -= 1
@@ -25,17 +25,8 @@ class FirFilter:
         n = len(input)
         output = np.zeros(n)
         for i in range(n):
-            output[i] = self.do_filter(input[i])
+            output[i] = self._do_filter(input[i])
         return output
-
-    def do_filter_adaptive(self, signal, noise, learning_rate):
-        # Calculate thr error
-        canceller = self.do_filter(noise)
-        error = signal - canceller
-        # Update the h(n)
-        for i in range(self.M):
-            self.h[i] += error * learning_rate * self.buffer[i]
-        return error
 
 
 class BandStopFilter(FirFilter):
@@ -56,21 +47,21 @@ class LmsFilter(FirFilter):
         super().__init__(h)
         self.sample_rate = sample_rate
 
-    def _do_filter_adaptive(self, signal, noise, learning_rate):
+    def __do_filter_adaptive(self, signal, noise, learning_rate):
         # Calculate thr error
-        canceller = super.do_filter(noise)
-        error = signal - canceller
+        canceller = super()._do_filter(noise)
+        output = signal - canceller
         # Update the h(n)
         for i in range(self.M):
-            self.h[i] += error * learning_rate * self.buffer[i]
-        return error
+            self.h[i] += output * learning_rate * self.buffer[(i + self.offset) % self.M]
+        return output
 
     def do_total_filter_adaptive(self, input, noise_freq, learning_rate):
         n = len(input)
         output = np.zeros(n)
         for i in range(n):
             noise = np.sin(2.0 * np.pi * noise_freq / self.sample_rate * i)
-            output[i] = self.do_filter_adaptive(input[i], noise, learning_rate)
+            output[i] = self.__do_filter_adaptive(input[i], noise, learning_rate)
         return output
 
 

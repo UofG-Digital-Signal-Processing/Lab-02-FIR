@@ -1,11 +1,13 @@
 # TODO Detect R-peaks in ECG signal
+import matplotlib
 import numpy as np
-from matplotlib import pyplot as plt
+
 import firdesign
 from firfilter import FirFilter
-import matplotlib
+
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
+
 
 def createWavelet():
     t = np.arange(-0.4, 0.4, 1 / 1250)
@@ -34,18 +36,15 @@ if __name__ == '__main__':
     res3 = []
 
     high_pass_w_c = 2
-    band_stop_w_c = [49,51]
+    band_stop_w_c = [49, 51]
     sample_rate = 1000
     # create bandstop filter
     # cutoff_frequencies1 = [49, 51]
     # coefficients1 = bandstopDesign(250, cutoff_frequencies1, Frequency_Resolution)
     # filter1 = FIRfilter(coefficients1)
 
-
     band_stop_h = firdesign.band_stop_design(sample_rate, band_stop_w_c)
     filter1 = FirFilter(band_stop_h)
-
-
 
     # create high pass filter
     # cutoff_frequencies2 = 2

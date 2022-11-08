@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
+
 import constant
-import firdesign
 import util
-from firfilter import FirFilter
+from firfilter import BandStopFilter, HighPassFilter
 
 if __name__ == '__main__':
     band_stop_w_1 = 49
@@ -11,20 +11,14 @@ if __name__ == '__main__':
     high_pass_w_c = 2
     original_data = np.loadtxt(constant.file_path)
     n = len(original_data)
-    # Create bands-top filter
-    band_stop_h = firdesign.band_stop_design(constant.sample_rate, [band_stop_w_1, band_stop_w_2])
-    band_stop_filter = FirFilter(band_stop_h)
+    # Create band-stop filter
+    band_stop_filter = BandStopFilter(constant.sample_rate, band_stop_w_1, band_stop_w_2)
     # Create high-pass filter
-    high_pass_h = firdesign.high_pass_design(constant.sample_rate, high_pass_w_c)
-    high_pass_filter = FirFilter(high_pass_h)
+    high_pass_filter = HighPassFilter(constant.sample_rate, high_pass_w_c)
     # Remove the 50Hz interference by the band-stop filter
-    band_stop_output = np.zeros(n)
-    for i in range(n):
-        band_stop_output[i] = band_stop_filter.do_filter(original_data[i])
+    filtered_data = band_stop_filter.do_total_filter(original_data)
     # Process the baseline wander by the high-pass filter
-    high_pass_output = np.zeros(n)
-    for i in range(n):
-        high_pass_output[i] = high_pass_filter.do_filter(band_stop_output[i])
+    filtered_data = high_pass_filter.do_total_filter(filtered_data)
     # Plot the original ECG time domain
     original_time, original_amplitude = util.cal_time_domain(original_data, constant.sample_rate)
     plt.subplot(2, 2, 1)
@@ -40,14 +34,14 @@ if __name__ == '__main__':
     plt.xlabel("Frequency")
     plt.ylabel("Amplitude")
     # Plot the filtered ECG time domain
-    filtered_time, filtered_amplitude = util.cal_time_domain(high_pass_output, constant.sample_rate)
+    filtered_time, filtered_amplitude = util.cal_time_domain(filtered_data, constant.sample_rate)
     plt.subplot(2, 2, 3)
     plt.plot(filtered_time, filtered_amplitude)
     plt.title('Filtered ECG Time Domain')
     plt.xlabel("Time")
     plt.ylabel("Amplitude")
     # Plot the filtered ECG frequency domain
-    filtered_freq, filtered_amplitude = util.cal_frequency_domain(high_pass_output, constant.sample_rate)
+    filtered_freq, filtered_amplitude = util.cal_frequency_domain(filtered_data, constant.sample_rate)
     plt.subplot(2, 2, 4)
     plt.plot(filtered_freq, filtered_amplitude)
     plt.title('Filtered ECG Frequency Domain')

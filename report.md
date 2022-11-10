@@ -4,7 +4,15 @@
 
 ## Task 1: Design Filter
 
-According to the description, functions to design the filter need to be implemented and functions should automatically decide the num of coefficients. For exmaple, high pass filter just need one cutoff frequency, however, band stop frequency should have two cutoff frequency. Due to characteristics of python, dynamic language, at runtime the code can change its structure based on certain conditions, meanwhile, the data type is not determined at the compile stage, but the type binding is postponed to the runtime stage.Therefore, incoming parameters can be consistent. What is more, considering scalability, in order to not need to refactor the entire structure when a new filter needs to be designed, define a base class `Filter` and a abstract method `_design_filter` is necessary. And then, because the process of high pass filter is same as band stop filter's, the method to filter can be defined in super class, when a filter need a different function to filter, it is easy to overload it in specific derived class.
+According to the description, functions to design the filter need to be implemented and functions should automatically
+decide the num of coefficients. For exmaple, high pass filter just need one cutoff frequency, however, band stop
+frequency should have two cutoff frequency. Due to characteristics of python, **dynamic language**, at runtime the code
+can change its structure based on certain conditions, meanwhile, the data type is not determined at the compile stage,
+but the **type binding** is postponed to the **runtime stage**.Therefore, incoming parameters can be consistent. What is
+more, considering **scalability**, in order to not need to refactor the entire structure when a new filter needs to be
+designed, define a base class `Filter` and a **abstract** method `_design_filter` is necessary. And then, because the
+process of high pass filter is same as band stop filter's, the method to filter can be defined in super class, when a
+filter need a different function to filter, it is easy to **overload** it in specific derived class.
 
 ## I. Define the super class, FirFilter
 
@@ -21,8 +29,9 @@ According to the description, functions to design the filter need to be implemen
             self.buffer = np.zeros(self.M)
             self.offset = self.M - 1
     ```
-    
-1. Define a private abstract design function which need every derived class to implement since this function is not expected to be called by the outside.
+
+1. Define a private abstract design function which need every derived class to implement since this function is not
+   expected to be called by the outside.
 
     ```python
     # Abstract design method
@@ -31,7 +40,8 @@ According to the description, functions to design the filter need to be implemen
         pass
     ```
 
-1. Define filter functions, including a real time filter function and entire filter function. In order to improve efficiency, to use a **loop array** and a **offset** to implement a buffer.
+1. Define filter functions, including a real time filter function and entire filter function. In order to improve
+   efficiency, to use a **loop array** and a **offset** to implement a buffer.
 
     ```python
     # Real time filter
@@ -158,7 +168,8 @@ According to the description, functions to design the filter need to be implemen
        return h
    ```
 
-1. Overland the filter function, lms filter need calculate a error between input and noise. In addition, because of **loop array** to implement the buffer, need to use **offset** to update the h(n)
+1. Overland the filter function, lms filter need calculate a error between input and noise. In addition, because of **
+   loop array** to implement the buffer, need to use **offset** to update the h(n)
 
    ```python
    def _do_filter(self, input, noise=None):
@@ -181,19 +192,19 @@ According to the description, functions to design the filter need to be implemen
 
 <div style="page-break-after:always"></div>
 
-## Task 2: 
+## Task 2:
 
 <div style="page-break-after:always"></div>
 
-## Task 3: 
+## Task 3:
 
 <div style="page-break-after:always"></div>
 
-## Task 4: 
+## Task 4:
 
 <div style="page-break-after:always"></div>
 
-##  Appendix:
+## Appendix:
 
-Here is the GitHub repository link of this project: 
+Here is the GitHub repository link of this project: https://github.com/DSP-Lab-Group/Lab-02-FIR
 

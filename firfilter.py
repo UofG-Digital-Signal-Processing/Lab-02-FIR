@@ -11,11 +11,12 @@ class FirFilter:
         self.buffer = np.zeros(self.M)
         self.offset = self.M - 1
 
-    # Define the abstract design method
+    # Abstract design method
     @abc.abstractmethod
     def _design_filter(self, w):
         pass
 
+    # Real time filter
     def _do_filter(self, input):
         self.buffer[self.offset] = input
         # Move the offset
@@ -28,6 +29,7 @@ class FirFilter:
             output += self.h[i] * self.buffer[(i + self.offset) % self.M]
         return output
 
+    # Entire filter process
     def do_total_filter(self, input):
         n = len(input)
         output = np.zeros(n)
@@ -94,8 +96,10 @@ class HighPassFilter(FirFilter):
 
 
 class LmsFilter(FirFilter):
-    def __init__(self, _sample_rate, _freq_resolution=1):
+    def __init__(self, _sample_rate, _noise_freq, _learning_rate, _freq_resolution=1):
         self.sample_rate = _sample_rate
+        self.noise_freq = _noise_freq
+        self.learning_rate = _learning_rate
         self.freq_resolution = _freq_resolution
         h = self._design_filter(None)
         super().__init__(h)
@@ -104,19 +108,19 @@ class LmsFilter(FirFilter):
         h = np.zeros(int(self.sample_rate / self.freq_resolution))
         return h
 
-    def __do_filter_adaptive(self, signal, noise, learning_rate):
+    def _do_filter(self, input, noise=None):
         # Calculate thr error
         canceller = super()._do_filter(noise)
-        output = signal - canceller
+        output = input - canceller
         # Update the h(n)
         for i in range(self.M):
-            self.h[i] += output * learning_rate * self.buffer[(i + self.offset) % self.M]
+            self.h[i] += output * self.learning_rate * self.buffer[(i + self.offset) % self.M]
         return output
 
-    def do_total_filter_adaptive(self, input, noise_freq, learning_rate):
+    def do_total_filter(self, input):
         n = len(input)
         output = np.zeros(n)
         for i in range(n):
-            noise = np.sin(2.0 * np.pi * noise_freq / self.sample_rate * i)
-            output[i] = self.__do_filter_adaptive(input[i], noise, learning_rate)
+            noise = np.sin(2.0 * np.pi * self.noise_freq / self.sample_rate * i)
+            output[i] = self._do_filter(input[i], noise)
         return output

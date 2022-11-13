@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 def createWavelet():
     t = np.arange(-0.4, 0.4, 1 / 1250)
     w = 250
-    y = np.sin(w * (t - 0)) / (w * (t - 0))
+    y = np.sin(w * t) / (w * t)
 
     return y
 
@@ -39,35 +39,12 @@ if __name__ == '__main__':
     high_pass_w_c = 2
     band_stop_w_c = [49, 51]
     sample_rate = 1000
-    # create bandstop filter
-    # cutoff_frequencies1 = [49, 51]
-    # coefficients1 = bandstopDesign(250, cutoff_frequencies1, Frequency_Resolution)
-    # filter1 = FIRfilter(coefficients1)
-
-    # band_stop_h = firdesign.band_stop_design(sample_rate, band_stop_w_c)
-    # filter1 = FirFilter(band_stop_h)
-
-
-
-    # create high pass filter
-    # cutoff_frequencies2 = 2
-    # coefficients2 = highpassDesign(250, cutoff_frequencies2, Frequency_Resolution)
-    # filter2 = FIRfilter(coefficients2)
-
-    # high_pass_h = firdesign.high_pass_design(sample_rate, high_pass_w_c)
-    # filter2 = FirFilter(high_pass_h)
-
-    # Processing of eliminating baseline wander
 
     high_pass_filter = HighPassFilter(constant.sample_rate,high_pass_w_c)
     OutputAfterHighpassFilter = high_pass_filter.do_total_filter(data)
-    # for i in range(len(data)):
-    #     OutputAfterHighpassFilter[i] = filter1.do_filter(data[i])
 
     band_stop_filter = BandStopFilter(constant.sample_rate, band_stop_w_c[0], band_stop_w_c[1])
     OutputAfterBandStopFilter = band_stop_filter.do_total_filter(OutputAfterHighpassFilter)
-    # for i in range(len(data)):
-    #     OutputAfterBandStopFilter[i] = filter2.do_filter(OutputAfterHighpassFilter[i])
 
     template1 = OutputAfterBandStopFilter[10500:11500]  # create template
     template2 = createWavelet()
@@ -93,32 +70,11 @@ if __name__ == '__main__':
     plt.savefig("res/task_4_(Template and Wavelet).svg")
 
 
-    filter1 = FirFilter(fir_coeff1)
-    filter2 = FirFilter(fir_coeff2)
+    filter1 = FirFilter(fir_coeff1) # R-peaks filter
+    filter2 = FirFilter(fir_coeff2) # Wavelet filter
 
     res2 = filter2.do_total_filter(OutputAfterBandStopFilter)
     res2 = abs(res2)
-    # for i in range(len(data)):
-    #     res2[i] = filter2.do_filter(OutputAfterBandStopFilter[i])
-    #     res2[i] = abs(res2[i])
-        # res2[i] = res2[i] * res2[i]
-
-
-    # band_stop_h = firdesign.band_stop_design(sample_rate, fir_coeff1)
-    # filter1 = FirFilter(band_stop_h)
-
-    # res2[i] = band_stop_h.do_total_filter(data)
-    # 
-    # filter1 = FirFilter(fir_coeff1)
-    # filter2 = FirFilter(fir_coeff2)
-
-    # for i in range(len(data)):
-    #     res2[i] = filter2.do_filter(OutputAfterBandStopFilter[i])
-    # 
-    #     res2[i] = res2[i] * res2[i]
-
-
-
 
     plt.figure(2)
     plt.xlabel("time")
@@ -172,6 +128,6 @@ if __name__ == '__main__':
     plt.xlabel("time(s)")
     plt.ylabel("(/s)")
     plt.title("Momentary Heartrate")
-    plt.savefig("res/task_4_(Momentary Heartrate).svg")
+    plt.savefig("res/task_4_(Momentary Heartrate_0).svg")
     plt.show()
 

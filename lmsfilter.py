@@ -5,6 +5,9 @@ import constant
 import util
 from firfilter import LmsFilter, HighPassFilter
 
+import matplotlib
+matplotlib.use('TkAgg')
+
 if __name__ == '__main__':
     noise_freq = 50
     learning_rate = 0.001

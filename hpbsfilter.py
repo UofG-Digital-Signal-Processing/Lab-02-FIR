@@ -5,6 +5,9 @@ import constant
 import util
 from firfilter import BandStopFilter, HighPassFilter
 
+import matplotlib
+matplotlib.use('TkAgg')
+
 if __name__ == '__main__':
     band_stop_w_1 = 49
     band_stop_w_2 = 51

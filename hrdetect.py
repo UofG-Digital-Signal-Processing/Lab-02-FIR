@@ -124,8 +124,8 @@ if __name__ == '__main__':
     plt.xlabel("time")
     plt.ylabel("Amplitude")
     plt.title("Output with R peaks detected")
-    plt.savefig("res/task_4_(R peaks detected).svg")
     plt.plot(t, res2)
+    plt.savefig("res/task_4_(R peaks detected).svg")
 
     for i in range(len(data)):
         if res2[i] <= 5:
@@ -164,8 +164,8 @@ if __name__ == '__main__':
     plt.xlabel("time")
     plt.ylabel("Amplitude")
     plt.title("Output after thresholding")
-    plt.savefig("res/task_4_(Output after thresholding).svg")
     plt.plot(t, res2)
+    plt.savefig("res/task_4_(Output after thresholding).svg")
 
     plt.figure(4)
     plt.plot(x_output, y_output)

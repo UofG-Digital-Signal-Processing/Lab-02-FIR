@@ -274,6 +274,288 @@ from firfilter import BandStopFilter, HighPassFilter
 
 ## Task 4:
 
+
+
+1. We've created a wavelet to simulate the shape of an R-peak. The angular frequency can be arbitrarily chosen as the appropriate value.
+
+~~~python
+def createWavelet():
+    t = np.arange(-0.4, 0.4, 1 / 1250)
+    w = 250
+    y = np.sin(w * t) / (w * t)
+    return y
+~~~
+
+2. Filter out the 50hz frequency first.
+
+~~~python
+    high_pass_filter = HighPassFilter(constant.sample_rate,high_pass_w_c)
+    OutputAfterHighpassFilter = high_pass_filter.do_total_filter(data)
+~~~
+
+
+
+3. Then filter out the baseline wander.
+
+~~~python
+    band_stop_filter = BandStopFilter(constant.sample_rate, band_stop_w_c[0], band_stop_w_c[1])
+    OutputAfterBandStopFilter = band_stop_filter.do_total_filter(OutputAfterHighpassFilter)
+~~~
+
+
+
+4. We take one of these R peaks and compare it with a wavelet. And reverse time, so we can convolve it later in the time domain.
+
+~~~python
+ 	template1 = OutputAfterBandStopFilter[10500:11500]  # create template
+    template2 = createWavelet()
+    fir_coeff1 = template1[::-1]  # reverse time
+    fir_coeff2 = template2[::-1]
+
+    template_t = np.arange(-500, 500)
+    template_t = template_t / 1000
+~~~
+
+![task_4_(Template and Wavelet)](E:\1Postg\DSP\Lab_Z\lab2\Assigment2\Lab-02-FIR\res\task_4_(Template and Wavelet).svg)
+
+It is easy to see that R-peak is very similar to wavelet, so we will use it as a template to detect R-peak
+
+
+
+5. Since the original data had positive and negative heart rate amplitude, we processed the amplitude with absolute value for the convenience of observation. So the R-peaks are all above the X-axis.
+
+~~~python
+    filter1 = FirFilter(fir_coeff1) # R-peaks filter
+    filter2 = FirFilter(fir_coeff2) # Wavelet filter
+
+    res2 = filter2.do_total_filter(OutputAfterBandStopFilter)
+    res2 = abs(res2)
+~~~
+
+
+
+![task_4_(R peaks detected)](E:\1Postg\DSP\Lab_Z\lab2\Assigment2\Lab-02-FIR\res\task_4_(R peaks detected).svg)
+
+6. Now we are ready to leave the R-peak in place and set the peak below the threshold to 0. We can see from the original figure that the amplitude of peak R is mostly between 8 and 10, and other small peaks are around 2, so we set the threshold value to 5.
+
+~~~python
+    for i in range(len(data)):
+        if res2[i] <= 5:
+            res2[i] = 0
+        else:
+            PeakTimeForECG[PeakNum] = i
+            PeakNum += 1
+
+    PeakTimeForECG = PeakTimeForECG[:PeakNum] # the place to time
+    PeakTimeForECG = PeakTimeForECG / 1000
+~~~
+
+
+
+7. Further filtering is needed to prevent incorrect data from being persisted during processing. We know from life experience that humans can't beat their hearts twice in 0.3 seconds, so we filtered out the data.
+
+~~~python
+    res3.append(PeakTimeForECG[0])
+    for i in range(1, len(PeakTimeForECG)):
+        if PeakTimeForECG[i] - PeakTimeForECG[i - 1] > 0.3: # remove the error, time interval > 0.3
+            res3.append(PeakTimeForECG[i])
+~~~
+
+![task_4_(Output after thresholding)](E:\1Postg\DSP\Lab_Z\lab2\Assigment2\Lab-02-FIR\res\task_4_(Output after thresholding).svg)
+
+So it looks very pure.
+
+
+
+8. To plot heart rate over time, we calculate an instantaneous heart rate for each R peak.
+
+~~~python
+    InverseInterval = []
+    y_output = []
+    x_output = []
+    for i in range(1, len(res3)):
+        InverseInterval.append((1 / (res3[i] - res3[i - 1]))) # Real heart rate
+~~~
+
+
+
+9. In order for x to match the length of y, let's append x twice
+
+~~~python
+    for i in range(len(InverseInterval)):
+        y_output.append(InverseInterval[i])
+    x_output.append(0)
+    for i in range(1, len(y_output),2):
+        x_output.append(res3[int(i / 2)])
+        x_output.append(res3[int(i / 2)])
+
+    x_output = x_output[:-1]
+~~~
+
+![task_4_(Momentary Heartrate_0)](E:\1Postg\DSP\Lab_Z\lab2\Assigment2\Lab-02-FIR\res\task_4_(Momentary Heartrate_0).svg)
+
+But that doesn't seem intuitive, so let's add y twice as well. This will give us a smooth line, which is easier to see.
+
+~~~python
+    for i in range(len(InverseInterval)):
+        y_output.append(InverseInterval[i])
+        # y_output.append(InverseInterval[i])
+    x_output.append(0)
+    for i in range(1, len(y_output),2):
+        x_output.append(res3[int(i / 2)])
+        x_output.append(res3[int(i / 2)])
+~~~
+
+![task_4_(Momentary Heartrate)](E:\1Postg\DSP\Lab_Z\lab2\Assigment2\Lab-02-FIR\res\task_4_(Momentary Heartrate).svg)
+
+So this person's heart rate is somewhere between 1.3/s and 1.6 /s.
+
+
+
+The full code is as follows:
+
+~~~python
+ # TODO Detect R-peaks in ECG signal
+import matplotlib
+import numpy as np
+import constant
+
+import firdesign
+from firfilter import FirFilter, BandStopFilter,HighPassFilter
+
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
+
+
+def createWavelet():
+    t = np.arange(-0.4, 0.4, 1 / 1250)
+    w = 250
+    y = np.sin(w * t) / (w * t)
+    return y
+
+if __name__ == '__main__':
+    y1 = createWavelet()
+    data = np.loadtxt('ECG_1000Hz.dat')
+    PeakTimeForECG = np.zeros(30000)
+    PeakNum = 0
+    Frequency_Resolution = 1
+    OutputAfterHighpassFilter = np.zeros(len(data))
+    OutputAfterBandStopFilter = np.zeros(len(data))
+    res1 = np.zeros(len(data))
+    res2 = np.zeros(len(data))
+    t = np.arange(0, 30000)
+    t = t / 1000
+    res3 = []
+
+    high_pass_w_c = 2
+    band_stop_w_c = [49, 51]
+    sample_rate = 1000
+
+
+    high_pass_filter = HighPassFilter(constant.sample_rate,high_pass_w_c)
+    OutputAfterHighpassFilter = high_pass_filter.do_total_filter(data)
+
+    band_stop_filter = BandStopFilter(constant.sample_rate, band_stop_w_c[0], band_stop_w_c[1])
+    OutputAfterBandStopFilter = band_stop_filter.do_total_filter(OutputAfterHighpassFilter)
+
+    template1 = OutputAfterBandStopFilter[10500:11500]  # create template
+    template2 = createWavelet()
+    fir_coeff1 = template1[::-1]  # reverse time
+    fir_coeff2 = template2[::-1]
+
+    template_t = np.arange(-500, 500)
+    template_t = template_t / 1000
+
+    plt.figure(1)
+
+    plt.subplot(2, 1, 1)
+    plt.xlabel("time")
+    plt.ylabel("Amplitude")
+    plt.title("Template")
+    plt.plot(template_t, fir_coeff1)
+
+    plt.subplot(2, 1, 2)
+    plt.xlabel("time")
+    plt.ylabel("Amplitude")
+    plt.title("Wavelet")
+    plt.plot(template_t, fir_coeff2)
+    plt.savefig("res/task_4_(Template and Wavelet).svg")
+
+
+    filter1 = FirFilter(fir_coeff1)
+    filter2 = FirFilter(fir_coeff2)
+
+    res2 = filter2.do_total_filter(OutputAfterBandStopFilter)
+    res2 = abs(res2)
+
+
+    plt.figure(2)
+    plt.xlabel("time")
+    plt.ylabel("Amplitude")
+    plt.title("Output with R peaks detected")
+    plt.plot(t, res2)
+    plt.savefig("res/task_4_(R peaks detected).svg")
+
+    for i in range(len(data)):
+        if res2[i] <= 5:
+            res2[i] = 0
+        else:
+            PeakTimeForECG[PeakNum] = i
+            PeakNum += 1
+
+    PeakTimeForECG = PeakTimeForECG[:PeakNum] # the place to time
+    PeakTimeForECG = PeakTimeForECG / 1000
+
+    res3.append(PeakTimeForECG[0])
+    for i in range(1, len(PeakTimeForECG)):
+        if PeakTimeForECG[i] - PeakTimeForECG[i - 1] > 0.3: # remove the error, time interval > 0.3
+            res3.append(PeakTimeForECG[i])
+
+    InverseInterval = []
+    y_output = []
+    x_output = []
+    for i in range(1, len(res3)):
+        InverseInterval.append((1 / (res3[i] - res3[i - 1]))) # Real heart rate
+
+    for i in range(len(InverseInterval)):
+        y_output.append(InverseInterval[i])
+        y_output.append(InverseInterval[i])
+    x_output.append(0)
+    for i in range(1, len(y_output),2):
+        x_output.append(res3[int(i / 2)])
+        x_output.append(res3[int(i / 2)])
+
+    x_output = x_output[:-1]
+
+    t1 = np.arange(0, 20)
+    plt.figure(3)
+    plt.xlabel("time")
+    plt.ylabel("Amplitude")
+    plt.title("Output after thresholding")
+    plt.plot(t, res2)
+    plt.savefig("res/task_4_(Output after thresholding).svg")
+
+    plt.figure(4)
+    plt.plot(x_output, y_output)
+    plt.xlabel("time(s)")
+    plt.ylabel("(/s)")
+    plt.title("Momentary Heartrate")
+    plt.savefig("res/task_4_(Momentary Heartrate).svg")
+    plt.show()
+
+
+~~~
+
+
+
+
+
+
+
+
+
+
+
 <div style="page-break-after:always"></div>
 
 ## Appendix:
